@@ -10,6 +10,7 @@ csvpath = os.path.join(".", "Resources", "budget_data.csv")
 #Name lists to store data
 date = []
 profit_loss = []
+change = []
 open_value = 0
 close_value = 0
 avg_change = 0
@@ -21,59 +22,61 @@ greatest_decr_profit = 0
 #open and read csv file
 with open(csvpath) as csvfile:
         csvreader = csv.reader(csvfile, delimiter=",")
-        #Skip header row
-        next(csvreader, None)
 
-#def print_changes(change_data):
-        #date = str(change_data[0])
-        #profit_loss = int(change_data[1])
+        # Read the header row first
+        csvheader = next(csvfile)
 
         for row in csvreader:
                 #add date
                 date.append(row[0])
-                open_value = date(row[0])
 
-                #add profit_loss
-                profit_loss.append(row[1])
-                if profit_loss >= greatest_incr_profit:
-                        greatest_incr_profit.append(profit_loss)
-                elif profit_loss <= greatest_decr_profit:
-                        greatest_decr_profit.append(profit_loss)
-                else:
-                        pass
+                #add profit_loss as an integer
+                profit_loss.append(int(row[1]))
+               
                         
 #calculate the total number of months in the dataset
-total_months = len(date)  
-print(total_months)  
-print(open_value)
+total_months = len(date)   
 
-profit_loss = [int(i) for i in profit_loss]
-    for x in range(profit_loss):
-    print(sum(profit_loss))
-    profit_loss_net = sum(profit_loss)
 
-#Sum of profit and loss over period
+#calculate net total amount of Profit/Losses
 profit_loss_net = sum(profit_loss)
 
-#calculate the change in profit and loss and then average
-avg_change = [close_value - open_value] / [total_months - 1]
+#calculate changes in Profit/Losses
+for x in range(1, total_months):
+      delta = profit_loss[x] - profit_loss[x-1]
+      change.append(delta)
+
+#average the change in profit and loss
+avg_change = sum(change) / len(change)
 
 #Deterime the greatest increase and decrease in profit
+greatest_incr = max(change)
+greatest_incr_date = date[change.index(greatest_incr) + 1]
+greatest_decr = min(change)
+greatest_decr_date = date[change.index(greatest_decr) + 1]
 
-#Print analysis
-print("Financial Analysis")
-print("-----------------------------")
-print(f"Total Months: {total_months")
+#Print analysis to terminal
+print(f"Financial Analysis")
+print(f"-----------------------------")
+print(f"Total Months: {total_months}")
 print(f"Total: ${profit_loss_net}")
-print(f"Average Change: {}")
-print(f"Greatest Increase in Profits: {greatest_incr_date} {greatest_incr_profit}")
-print(f"Greatest Decrease in Profits: {greatest_decr_date} {greatest_decr_profit}")
+print(f"Average Change: ${avg_change:.2f}")
+print(f"Greatest Increase in Profits: {greatest_incr_date} (${greatest_incr})")
+print(f"Greatest Decrease in Profits: {greatest_decr_date} (${greatest_decr})")
 
-#export text file
-def write_to_file(filename, lines):
-     with open(filename,"w") as text:
-        for line in lines:
-            text.write(f"{line}\n")
+# export to text file
+f = open("analysis/results.txt","w")
+
+print(f"Financial Analysis", file=f)
+print(f"-----------------------------", file=f)
+print(f"Total Months: {total_months}", file=f)
+print(f"Total: ${profit_loss_net}", file=f)
+print(f"Average Change: ${avg_change:.2f}", file=f)
+print(f"Greatest Increase in Profits: {greatest_incr_date} (${greatest_incr})", file=f)
+print(f"Greatest Decrease in Profits: {greatest_decr_date} (${greatest_decr})", file=f)
+
+f.close()
+
 
 
  
